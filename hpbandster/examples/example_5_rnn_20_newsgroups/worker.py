@@ -98,7 +98,7 @@ class RNN20NGWorker(Worker):
 
 
 		
-	def compute(self, config, budget, working_directory):
+	def compute(self, config, budget, working_directory, *args, **kwargs):
 
 
 		current_loss = 0
@@ -131,7 +131,7 @@ class RNN20NGWorker(Worker):
 			loss.backward()
 			optimizer.step()
 
-			current_loss += loss.data[0]
+			current_loss += loss.data.item()
 
 
 			if epoch % average_interval == 0:
