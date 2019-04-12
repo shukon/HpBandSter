@@ -64,11 +64,23 @@ class BOHB(base_config_generator):
 
 		hps = self.configspace.get_hyperparameters()
 
+		from ConfigSpace.read_and_write import json
+		with open('configspace.json', 'w') as fh:
+			fh.write(json.write(self.configspace))
+		#print(cs)
+		with open('configspace.json') as fh:
+			cs_str = str(fh.read())
+			cs_ = json.read(cs_str)
+			print(self.configspace == cs_)
+        	
+
 		self.kde_vartypes = ""
 		self.vartypes = []
 
-
 		for h in hps:
+			if hasattr(h, 'sequence'):
+				raise RuntimeError('This version on BOHB does not support ordinal hyperparameters. Please encode %s as an integer parameter!'%(h.name))
+			
 			if hasattr(h, 'choices'):
 				self.kde_vartypes += 'u'
 				self.vartypes +=[ len(h.choices)]
@@ -280,11 +292,13 @@ class BOHB(base_config_generator):
 		super().new_result(job)
 
 		if job.result is None:
-			# One could skip crashed results, but we decided 
+			# One could skip crashed results, but we decided to
 			# assign a +inf loss and count them as bad configurations
 			loss = np.inf
 		else:
-			loss = job.result["loss"]
+			# same for non numeric losses.
+			# Note that this means losses of minus infinity will count as bad!
+			loss = job.result["loss"] if np.isfinite(job.result["loss"]) else np.inf
 
 		budget = job.kwargs["budget"]
 

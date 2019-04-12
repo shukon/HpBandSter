@@ -32,7 +32,9 @@ class Master(object):
 			result_logger=None,
 			previous_result = None,
 			):
-		"""The Master class is responsible for the book keeping and to decide what to run next.
+		"""The Master class is responsible for the book keeping and to decide what to run next. Optimizers are
+                instantiations of Master, that handle the important steps of deciding what configurations to run on what
+                budget when.
 		
 		Parameters
 		----------
@@ -52,8 +54,8 @@ class Master(object):
 			The smallest budget to consider. Needs to be positive!
 		max_budget : float
 			the largest budget to consider. Needs to be larger than min_budget!
-			The budgets will be geometrically distributed $\sim \eta^k$ for
-			$k\in [0, 1, ... , num_subsets - 1]$.
+			The budgets will be geometrically distributed :math:`\sim \eta^k` for
+			:math:`k\in [0, 1, ... , num\_subsets - 1]`.
 		ping_interval: int
 			number of seconds between pings to discover new nodes. Default is 60 seconds.
 		nameserver: str
@@ -255,14 +257,15 @@ class Master(object):
 			self.logger.debug('job_callback for %s got condition'%str(job.id))
 			self.num_running_jobs -= 1
 
-			if self.num_running_jobs <= self.job_queue_sizes[0]:
-				self.logger.debug("HBMASTER: Trying to run another job!")
-				self.thread_cond.notify()
-
 			if not self.result_logger is None:
 				self.result_logger(job)
 			self.iterations[job.id[0]].register_result(job)
 			self.config_generator.new_result(job)
+
+			if self.num_running_jobs <= self.job_queue_sizes[0]:
+				self.logger.debug("HBMASTER: Trying to run another job!")
+				self.thread_cond.notify()
+
 		self.logger.debug('job_callback for %s finished'%str(job.id))
 
 	def _queue_wait(self):

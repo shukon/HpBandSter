@@ -16,7 +16,10 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../..'))
 
+import sphinx_rtd_theme
+
 # -- Project information -----------------------------------------------------
+import hpbandster
 
 project = 'hpbandster'
 copyright = '2018, Stefan Falkner'
@@ -38,15 +41,33 @@ release = ''
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.napoleon',
     'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.napoleon',
     'sphinx.ext.githubpages',
+    'sphinx_gallery.gen_gallery',
 ]
 # add __init__ docstring to docs
 autoclass_content = 'both'
+
+
+from sphinx_gallery.sorting import ExampleTitleSortKey
+# Now to declare your project structure, we add a configuration dictionary
+# for Sphinx-Gallery. The examples directory ../examples is declared
+# with a relative path from the conf.py file location:
+sphinx_gallery_conf = {
+                        # path to your examples scripts
+                        'examples_dirs': '../../hpbandster/examples',
+                        # path where to save gallery generated examples
+                        'gallery_dirs': 'auto_examples',
+                        # ignore files with this pattern.
+                        'ignore_pattern': '__init__\.py|.*\.sh',
+                        'within_subsection_order': ExampleTitleSortKey,
+                      }
 
 
 # Add any paths that contain templates here, relative to this directory.
@@ -81,8 +102,9 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
-html_theme = 'sphinxdoc'
+html_theme = 'sphinx_rtd_theme'
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+using_rtd_theme = True
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -93,10 +115,12 @@ html_theme = 'sphinxdoc'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+# html_static_path = ['_static']
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
+html_sidebars = {'**': ['localtoc.html']}
+
 #
 # The default sidebars (for documents that don't match any pattern) are
 # defined by theme itself.  Builtin themes are using these templates by
